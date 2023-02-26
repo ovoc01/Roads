@@ -14,12 +14,12 @@
         height: 300px;
     }
 </style>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtBfUgArg9M-eu4m9ilh1G3n1hwyTozJw"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtBfUgArg9M-eu4m9ilh1G3n1hwyTozJw&callback=initMap"></script>
 <script>
     function initMap() {
         var map = new google.maps.Map(document.getElementById('map'), {
             center: {lat: -18.419, lng: 47.24},
-            zoom: 8
+            zoom: 10
         });
 
         var marker1 = new google.maps.Marker({
@@ -51,15 +51,25 @@
     }
   </script>
 <body onload="initMap()">
+    <div class="shadow-sm p-4 container rounded-3 mt-4 w-50">
+        <ul class="nav justify-content-center">
+            <li class="nav-item">
+              <a class="nav-link text-dark" href="{{ url_for('way_bp.formulaire') + '?page=show' }}">Prix</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-dark" href="{{ url_for('way_bp.formulaire') + '?page=insert' }}">Ajouter</a>
+            </li>
+        </ul>
+    </div>
     {% if page != "insert":%}
     <div class="container mt-5">
-        <div id="map" class="mx-auto shadow4"></div>
+        <div id="map" class="mx-auto shadow"></div>
     </div>
     {% endif %}
-    <div class="container w-50 mt-4 shadow p-5 rounded-3">
+    <div class="container w-50 shadow p-5 rounded-3 my-5">
         <form action="{{ url_for('way_bp.' + page) }}" method="post">
             <div class="row mb-4">
-                <select name="route" id="" class="form-select mx-auto" style="width: 587px;">
+                <select name="route" class="form-select mx-auto" style="width: 587px;">
                     <option value="RNP 2">RNP 2</option>
                     <option value="RNP 7">RNP 7</option>
                     <option value="RNP 4">RNP 4</option>
@@ -76,8 +86,8 @@
             {% if page == "insert":%}
                 <input type="text" placeholder="Niveau" name="niveau" class="form-control">
             {% endif %}
-            <div class="container mt-4">
-                <button class="btn btn-dark px-5" style="margin-left: 210px;">Afficher</button>
+            <div class="container mt-4 mb-3">
+                <button class="btn btn-dark px-5" style="margin-left: 210px;">{{ page }}</button>
             </div>
             {% if error != None:%}
                 <h1>{{ error }}</h1>

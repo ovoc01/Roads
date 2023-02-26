@@ -18,13 +18,11 @@ class Way:
     def __set_depart(self, depart):
         try:
             value = float(depart)
-            if value < 0:
-                raise Exception("Depart is must be positive")
-            if value > self.get_length_max():
-                raise Exception("Depart a dépassé la longueur maximum")
+            if value < 0: raise Exception("Depart doit être positive")
+            if value > self.get_length_max(): raise Exception("Depart a dépassé la longueur maximum")
             self.__depart = round(value)
         except ValueError:
-            raise Exception("Depart is not valid")
+            raise Exception("Depart doit être un nombre")
         
     def get_depart(self):
         return self.__depart
@@ -32,31 +30,27 @@ class Way:
     def __set_arrive(self, arrive):
         try:
             value = float(arrive)
-            if value < 0:
-                raise Exception("Arrive is must be positive")
-            if value > self.get_length_max():
-                raise Exception("Arrive a dépassé la longueur maximum")
+            if value < 0: raise Exception("Arrive doit être positive")
+            if value > self.get_length_max(): raise Exception("Arrive a dépassé la longueur maximum")
             self.__arrive = round(value)
         except ValueError:
-            raise Exception("Arrive is not valid")
+            raise Exception("Arrive doit être un nombre")
         
     def get_arrive(self):
         return self.__arrive
     
     def set_point_kilometrique(self, depart, arrive):
-        if float(depart) > float(arrive):
-            raise Exception("Depart must be less than arrive")
         self.__set_arrive(arrive)
         self.__set_depart(depart)
+        if float(depart) > float(arrive): raise Exception("Depart doit être inférieur à l'arrive")
     
     def set_niveau(self, niveau):
         try:
             value = float(niveau)
-            if value < 0:
-                raise Exception("Niveau is must be positive") 
+            if value < 0: raise Exception("Niveau doit être positive") 
             self.__niveau = round(value)
         except ValueError:
-            raise Exception("Niveau is not valid")
+            raise Exception("Niveau doit être un nombre")
     
     def get_niveau(self):
         return self.__niveau
@@ -70,8 +64,7 @@ class Way:
     def set_width(self, width):
         try:
             value = float(width)
-            if value < 0:
-                raise Exception("Width is must be positive")
+            if value < 0: raise Exception("Width is must be positive")
             self.__width = value
         except ValueError:
             raise Exception("Width is not valid")
@@ -82,8 +75,7 @@ class Way:
     def set_length_max(self, length_max):
         try:
             value = float(length_max)
-            if value < 0:
-                raise Exception("Length is must be positive")
+            if value < 0: raise Exception("Length is must be positive")
             self.__length_max = round(value)
         except ValueError:
             raise Exception("Length is not valid")
@@ -123,8 +115,8 @@ class Way:
     def get_bad_roads(self):
         connection = Connection.getPostgreSQL()
         cursor = connection.cursor()
-        cursor.execute("SELECT * FROM route_reparation WHERE (%s <= depart AND depart <= %s) OR (%s <= arrive AND arrive <= %s)", 
-                       (self.get_depart(), self.get_arrive(), self.get_depart(), self.get_arrive()))
+        cursor.execute("SELECT * FROM route_reparation WHERE ((%s <= depart AND depart <= %s) OR (%s <= arrive AND arrive <= %s)) AND name = %s", 
+                       (self.get_depart(), self.get_arrive(), self.get_depart(), self.get_arrive(), self.get_name()))
         array = []
         for component in cursor.fetchall():
             way = Way(component[0], component[1], component[2])

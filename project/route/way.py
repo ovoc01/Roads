@@ -1,5 +1,6 @@
 import math
 from database import Connection
+from .exception import Roads_exception
 
 class Way:
     
@@ -91,8 +92,7 @@ class Way:
     
     def get_prix_reparation(self):
         somme = 0
-        roads = self.get_bad_roads()
-        for road in roads:
+        for road in self.get_bad_roads():
             if road.get_depart() < self.get_depart():
                 road.__set_depart(self.get_depart())
             if road.get_arrive() > self.get_arrive():
@@ -112,50 +112,65 @@ class Way:
         return 20000
         
     def get_bad_roads(self):
-        connection = Connection.getPostgreSQL()
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM route_reparation WHERE ((%s <= depart AND depart <= %s) OR (%s <= arrive AND arrive <= %s)) AND name = %s", 
-                       (self.get_depart(), self.get_arrive(), self.get_depart(), self.get_arrive(), self.get_name()))
         array = []
-        for component in cursor.fetchall():
-            way = Way(component[0], component[1], component[2])
-            way.set_point_kilometrique(component[3], component[4])
-            way.set_niveau(component[5])
-            array.append(way)
-            print(way.get_depart())
-        cursor.close()
-        connection.commit()
-        connection.close()
+        connection = None
+        cursor = None
+        try:
+            connection = Connection.getPostgreSQL()
+            cursor = connection.cursor()
+            cursor.execute("SELECT * FROM route_reparation WHERE ((%s <= depart AND depart <= %s) OR (%s <= arrive AND arrive <= %s)) AND name = %s", 
+                        (self.get_depart(), self.get_arrive(), self.get_depart(), self.get_arrive(), self.get_name()))
+            for component in cursor.fetchall():
+                way = Way(component[0], component[1], component[2])
+                way.set_point_kilometrique(component[3], component[4])
+                way.set_niveau(component[5])
+                array.append(way)
+        finally:
+            Way.close(cursor, connection)
         return array
         
     def insert(self):
-        connection = Connection.getPostgreSQL()
-        cursor = connection.cursor()
-        cursor.execute("INSERT INTO bad_roads(roadno, depart, arrive, niveau) VALUES (%s, %s, %s, %s)",
-                       (self.get_name(), self.get_depart(), self.get_arrive(), self.get_niveau()))
-        cursor.close()
-        connection.commit()
-        connection.close()
+        connection = None
+        cursor = None
+        try:
+            roads = self.get_bad_roads()
+            if len(roads) > 0: raise Roads_exception("Il y a déjà des dégats sur ces points:", roads)
+            connection = Connection.getPostgreSQL()
+            cursor = connection.cursor()
+            cursor.execute("INSERT INTO bad_roads(roadno, depart, arrive, niveau) VALUES (%s, %s, %s, %s)",
+                            (self.get_name(), self.get_depart(), self.get_arrive(), self.get_niveau()))
+            connection.commit()
+        finally:
+            Way.close(cursor, connection)
         
     def get_liste_route_nationale():
-        connection = Connection.getPostgreSQL()
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM route_nationale")
         array = []
-        for component in cursor.fetchall():
-            array.append(Way(component[0], component[1], component[2]))
-        cursor.close()
-        connection.commit() 
-        connection.close()
+        connection = None
+        cursor = None
+        try:
+            connection = Connection.getPostgreSQL()
+            cursor = connection.cursor()
+            cursor.execute("SELECT * FROM route_nationale")
+            for component in cursor.fetchall():
+                array.append(Way(component[0], component[1], component[2]))
+        finally:
+            Way.close(cursor, connection)
         return array
     
     def get_route_nationale(id):
-        connection = Connection.getPostgreSQL()
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM route_nationale WHERE name='" + id + "'")
-        component = cursor.fetchone()
-        value = Way(component[0], component[1], component[2])
-        cursor.close()
-        connection.commit()
-        connection.close()
+        value = None
+        connection = None
+        cursor = None
+        try:
+            connection = Connection.getPostgreSQL()
+            cursor = connection.cursor()
+            cursor.execute("SELECT * FROM route_nationale WHERE name='" + id + "'")
+            component = cursor.fetchone()
+            value = Way(component[0], component[1], component[2])
+        finally:    
+            Way.close(cursor, connection)
         return value
+    
+    def close(cursor, connection):
+        if cursor != None: cursor.close()
+        if connection != None: connection.close()

@@ -90,7 +90,7 @@
                 <button class="btn btn-dark px-5" style="margin-left: 210px;">{{ page }}</button>
             </div>
             {% if error != None:%}
-                <h1>{{ error }}</h1>
+                <h1>{{ error | safe }}</h1>
             {% endif %}
         </form>
         {% if route != None:%}

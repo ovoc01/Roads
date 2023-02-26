@@ -106,13 +106,13 @@ class Way:
             if road.get_arrive() > self.get_arrive():
                 road.__set_arrive(self.get_arrive())
             somme += road.get_volume() * road.get_prix_unitaire()
-        return somme
+        return round(somme, 3)
     
     def get_duree_reparation(self):
         value = round(self.get_prix_reparation() / self.get_duree_unitaire())
         if value > 24:
-            return str(value / 24) + " jour"
-        return str(value) + " heure"
+            return str(round(value / 24, 3)) + " jour"
+        return str(round(value, 3)) + " heure"
     
     def get_prix_unitaire(self):
         return 30000
@@ -123,14 +123,15 @@ class Way:
     def get_bad_roads(self):
         connection = Connection.getPostgreSQL()
         cursor = connection.cursor()
-        cursor.execute("SELECT * FROM route_reparation WHERE (depart <= %s AND %s <= arrive) OR (depart <= %s AND %s <= arrive)", 
-                       (self.get_depart(), self.get_depart(), self.get_arrive(), self.get_arrive()))
+        cursor.execute("SELECT * FROM route_reparation WHERE (%s <= depart AND depart <= %s) OR (%s <= arrive AND arrive <= %s)", 
+                       (self.get_depart(), self.get_arrive(), self.get_depart(), self.get_arrive()))
         array = []
         for component in cursor.fetchall():
             way = Way(component[0], component[1], component[2])
             way.set_point_kilometrique(component[3], component[4])
             way.set_niveau(component[5])
             array.append(way)
+            print(way.get_depart())
         cursor.close()
         connection.commit()
         connection.close()
@@ -160,7 +161,7 @@ class Way:
     def get_route_nationale(id):
         connection = Connection.getPostgreSQL()
         cursor = connection.cursor()
-        cursor.execute("SELECT * FROM route_nationale WHERE name=%s", (id))
+        cursor.execute("SELECT * FROM route_nationale WHERE name='" + id + "'")
         component = cursor.fetchone()
         value = Way(component[0], component[1], component[2])
         cursor.close()

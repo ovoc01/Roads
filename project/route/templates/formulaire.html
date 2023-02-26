@@ -59,28 +59,36 @@
     <div class="container w-50 mt-4 shadow p-5 rounded-3">
         <form action="{{ url_for('way_bp.' + page) }}" method="post">
             <div class="row mb-4">
-                <select name="" id="" class="form-select mx-auto" style="width: 587px;">
-                    <option value="" selected>Selectionner la route</option>
-                    <option value="">RNP 2</option>
-                    <option value="">RNP 7</option>
-                    <option value="">RNP 3</option>
+                <select name="route" id="" class="form-select mx-auto" style="width: 587px;">
+                    <option value="RNP 2">RNP 2</option>
+                    <option value="RNP 7">RNP 7</option>
+                    <option value="RNP 4">RNP 4</option>
                 </select>
             </div>
             <div class="row mb-4">
                 <div class="col">
-                    <input type="text" placeholder="Debut" name="debut" class="form-control">
+                    <input type="text" placeholder="Debut" name="depart" class="form-control">
                 </div>
                 <div class="col">
                     <input type="text" placeholder="Arrive" name="arrive" class="form-control">
                 </div>
             </div>
             {% if page == "insert":%}
-            <input type="text" placeholder="Niveau" name="arrive" class="form-control">
+                <input type="text" placeholder="Niveau" name="niveau" class="form-control">
             {% endif %}
             <div class="container mt-4">
                 <button class="btn btn-dark px-5" style="margin-left: 210px;">Afficher</button>
             </div>
+            {% if error != None:%}
+                <h1>{{ error }}</h1>
+            {% endif %}
         </form>
+        {% if route != None:%}
+            <div>
+                <h3>Prix: {{ route.get_prix_reparation() }} Ariary</h3>
+                <h3>Duree: {{ route.get_duree_reparation() }}</h3>
+            </div>
+        {% endif %}
     </div>
 </body>
 </html>

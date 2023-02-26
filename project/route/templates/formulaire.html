@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../static/assets/css/bootstrap.css">
+    <title>{{ page }}</title>
+</head>
+<style>
+    #map {
+        border-radius: 20px;
+        width: 675px; 
+        height: 300px;
+    }
+</style>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAtBfUgArg9M-eu4m9ilh1G3n1hwyTozJw"></script>
+<script>
+    function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: -18.419, lng: 47.24},
+            zoom: 8
+        });
+
+        var marker1 = new google.maps.Marker({
+            position: {lat: -18.419, lng: 47.24},
+            map: map
+        });
+
+        var marker2 = new google.maps.Marker({
+            position: {lat: -18.90, lng: 47.24},
+            map: map
+        });
+
+        var directionsService = new google.maps.DirectionsService();
+        var directionsRenderer = new google.maps.DirectionsRenderer();
+
+        var request = {
+            origin: marker1.getPosition(),
+            destination: marker2.getPosition(),
+            travelMode: 'DRIVING'
+        };
+
+        directionsService.route(request, function(result, status) {
+            if (status == 'OK') {
+                directionsRenderer.setDirections(result);
+            }
+        });
+
+        directionsRenderer.setMap(map);
+    }
+  </script>
+<body onload="initMap()">
+    {% if page != "insert":%}
+    <div class="container mt-5">
+        <div id="map" class="mx-auto shadow4"></div>
+    </div>
+    {% endif %}
+    <div class="container w-50 mt-4 shadow p-5 rounded-3">
+        <form action="{{ url_for('way_bp.' + page) }}" method="post">
+            <div class="row mb-4">
+                <select name="" id="" class="form-select mx-auto" style="width: 587px;">
+                    <option value="" selected>Selectionner la route</option>
+                    <option value="">RNP 2</option>
+                    <option value="">RNP 7</option>
+                    <option value="">RNP 3</option>
+                </select>
+            </div>
+            <div class="row mb-4">
+                <div class="col">
+                    <input type="text" placeholder="Debut" name="debut" class="form-control">
+                </div>
+                <div class="col">
+                    <input type="text" placeholder="Arrive" name="arrive" class="form-control">
+                </div>
+            </div>
+            {% if page == "insert":%}
+            <input type="text" placeholder="Niveau" name="arrive" class="form-control">
+            {% endif %}
+            <div class="container mt-4">
+                <button class="btn btn-dark px-5" style="margin-left: 210px;">Afficher</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

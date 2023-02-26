@@ -1,0 +1,7 @@
+CREATE TABLE Bad_roads(
+    id SERIAL PRIMARY KEY,
+    roadno VARCHAR,
+    depart DOUBLE PRECISION NOT NULL DEFAULT 0 CHECK(depart > 0),
+    arrive DOUBLE PRECISION NOT NULL DEFAULT 0 CHECK(arrive > 0),
+    niveau DOUBLE PRECISION NOT NULL DEFAULT 0 CHECK(niveau > 0)
+);

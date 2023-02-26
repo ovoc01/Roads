@@ -102,8 +102,7 @@ class Way:
     
     def get_duree_reparation(self):
         value = round(self.get_prix_reparation() / self.get_duree_unitaire())
-        if value > 24:
-            return str(round(value / 24, 3)) + " jour"
+        if value > 24: return str(round(value / 24, 3)) + " jour"
         return str(round(value, 3)) + " heure"
     
     def get_prix_unitaire(self):
